@@ -18,7 +18,7 @@ namespace Api.Controllers
         [Route]
         public async Task<IHttpActionResult> Post()
         {
-            await _endpointInstance.Send(new SomeCommand());
+            await _endpointInstance.Send(new SomeCommand()).ConfigureAwait(false);
             return Ok();
         }
     }

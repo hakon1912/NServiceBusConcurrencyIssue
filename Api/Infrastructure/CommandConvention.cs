@@ -59,10 +59,10 @@ namespace Api.Infrastructure
             {
 
             }
-            return (t.Namespace.EndsWith("Messages.Commands")
-                || t.Namespace.EndsWith("MessagingContracts.Commands")
-                || Regex.IsMatch(t.Namespace, @"Messages\..*Commands", RegexOptions.None))
-                && t.Name.EndsWith("Command");
+            return (t.Namespace.EndsWith("Messages.Commands") // Yes
+                || t.Namespace.EndsWith("MessagingContracts.Commands") // No
+                || Regex.IsMatch(t.Namespace, @"Messages\..*Commands", RegexOptions.None)) // Yes
+                && t.Name.EndsWith("Command"); // Yes
         }
 
         private bool WhitelistedCommandNamespace(Type t)

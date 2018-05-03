@@ -19,8 +19,8 @@ namespace Api
             ConfigureJsonFormatting(config);
 
             var container = new Bootstrapper().CreateAndConfigureContainer();
-            var t = Task.Run(() => new EndpointConfig().Configure(container));
-            Task.WaitAll(t);
+            var cfg = new EndpointConfig();
+            cfg.Configure(container).GetAwaiter().GetResult();
 
             config.Services.Replace(typeof(IHttpControllerActivator),
                 new WindsorCompositionRoot(container));
