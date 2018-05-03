@@ -5,19 +5,22 @@ using NServiceBus.Config.ConfigurationSource;
 
 namespace Api.Infrastructure
 {
-    public class UnicastBusConfigProvider : IProvideConfiguration<UnicastBusConfig>
-    {
-        public UnicastBusConfig GetConfiguration()
-        {
-            UnicastBusConfig config = (UnicastBusConfig)ConfigurationManager.GetSection(typeof(UnicastBusConfig).Name) ?? new UnicastBusConfig();
+    // SHoudl not be used, should use the code API
 
-            config.MessageEndpointMappings.Add(new MessageEndpointMapping
-            {
-                Endpoint = ConfigurationManager.AppSettings["Messaging.Endpoint.Claims.InvoiceReceiver"],
-                Messages = typeof(SomeCommand).Assembly.GetName().Name
-            });
 
-            return config;
-        }
-    }
+    //public class UnicastBusConfigProvider : IProvideConfiguration<UnicastBusConfig>
+    //{
+    //    public UnicastBusConfig GetConfiguration()
+    //    {
+    //        UnicastBusConfig config = (UnicastBusConfig)ConfigurationManager.GetSection(typeof(UnicastBusConfig).Name) ?? new UnicastBusConfig();
+
+    //        config.MessageEndpointMappings.Add(new MessageEndpointMapping
+    //        {
+    //            Endpoint = ConfigurationManager.AppSettings["Messaging.Endpoint.Claims.InvoiceReceiver"],
+    //            Messages = typeof(SomeCommand).Assembly.GetName().Name
+    //        });
+
+    //        return config;
+    //    }
+    //}
 }

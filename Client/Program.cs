@@ -7,7 +7,7 @@ namespace NServiceBusIssue
 {
     public class Program
     {
-        private static HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient _httpClient = new HttpClient();
 
         public static void Main(string[] args)
         {
@@ -16,8 +16,8 @@ namespace NServiceBusIssue
 
         private static async Task MainAsync(string[] args)
         {
-            var url = args[0];
-            var concurrency = int.Parse(args[1]);
+            var url = "http://localhost:24512/api";
+            var concurrency = 100;
 
             var jobs = new Task[concurrency];
 
@@ -28,7 +28,7 @@ namespace NServiceBusIssue
                 jobs[i] = StartRequest(url);
             }
 
-            await Task.WhenAll(jobs);
+            await Task.WhenAll(jobs).ConfigureAwait(false);
             Console.WriteLine("All done! press enter to quit");
             Console.Read();
         }
@@ -42,11 +42,11 @@ namespace NServiceBusIssue
                 Content = new StringContent("", Encoding.UTF8)
             };
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 Console.WriteLine($"Request to {url} failed: {response.StatusCode}");
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
+                Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
             }
         }
     }

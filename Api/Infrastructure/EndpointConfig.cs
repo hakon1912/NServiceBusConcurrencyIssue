@@ -18,9 +18,16 @@ namespace Api.Infrastructure
             LogConfig.ConfigureLogging();
 
             var endpointConfiguration = new EndpointConfiguration(ConfigurationManager.AppSettings["Environment.ShortName"] + "_claims_invoicereceiver");
-            endpointConfiguration.EnableInstallers();
+            
+            // You should not always invoke the installers
+            //endpointConfiguration.EnableInstallers();
 
             var transport = endpointConfiguration.UseTransport<MsmqTransport>();
+
+
+            // Use the routing API
+            var routing = transport.Routing();
+            routing.RouteToEndpoint(typeof(SomeCommand), "Messaging.Endpoint.Claims.InvoiceReceiver");
 
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(int.Parse(ConfigurationManager.AppSettings["Messaging.MaximumConcurrencyLevel"]));
             endpointConfiguration.Recoverability().Immediate(cfg => cfg.NumberOfRetries(int.Parse(ConfigurationManager.AppSettings["Messaging.MaxRetries"])));
@@ -32,17 +39,19 @@ namespace Api.Infrastructure
 
             endpointConfiguration.UsePersistence<NHibernatePersistence>();
 
+            // Use this to configure an error queue, but as this is a send only endpoint it should not be required
+            endpointConfiguration.SendFailedMessagesTo(ConfigurationManager.AppSettings["Messaging.ErrorQueue"]);
+
             var commandConvention = new CommandConvention();
             var conventions = endpointConfiguration.Conventions();
 
-            conventions.DefiningCommandsAs(type =>
-                typeof(ICommand).IsAssignableFrom(type) || commandConvention.IsMatch(type));
+            conventions.DefiningCommandsAs(type => typeof(ICommand).IsAssignableFrom(type) || commandConvention.IsMatch(type));
 
             LogManager.Use<SerilogFactory>();
 
             endpointConfiguration.SendOnly();
 
-            var startableEndpoint = await Endpoint.Create(endpointConfiguration);
+            var startableEndpoint = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
 
             Log.Information("Endpointconfig started");
